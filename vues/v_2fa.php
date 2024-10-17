@@ -1,12 +1,12 @@
 ﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
-    <title>GSB -extranet</title>
+    <title>GSB - extranet</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Bootstrap -->
     <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <!-- styles -->
-    <link href="css/styles.css" rel="stylesheet">
+    <link href="../css/styles.css" rel="stylesheet">
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -27,22 +27,21 @@
 		<div class="col-md-4 col-md-offset-4">
 			<div class="login-wrapper">
 				<div class="box">
-						
-                                    <div class="content-wrap">
-						<legend>je suis médecin, je souhaite créer un compte</legend>
-							<form method="post" action="index.php?uc=creation&action=valideCreation">
-                  <input name="login" class="form-control" type="email" placeholder="mail"/>
-							    <input name="mdp" class="form-control" type="password" placeholder="password"/>
-                  <input name="prénom" class="form-control" type="text" placeholder="prénom"/>
-                  <input name="nom" class="form-control" type="text" placeholder="nom"/>
-                  <p><b>J'atteste avoir lu et accepte notre <a href="vues/v_politiqueprotectiondonnees.html">politique de protection des données</a></b></p><input type="checkbox" class="onoffswitch-checkbox" id="inline" name="politiqcheck" > 
-
-								<br>
-                  <input type="submit" class="btn btn-primary signup" value="Créer"/>
+					<div class="content-wrap">
+						<legend>Authentification a 2 facteur</legend>
+							<form method="post" action="../controleurs/c_2fa.php">
+								<input name="2fa" class="form-control" type="text" placeholder="Code A2F (6 Chiffres)">
+                <br><p>Vous avez reçu par mail un code d'authentification a 2 facteur.</p>
+								</br>
+								<input type="submit" class="btn btn-primary signup" value="Valider">
 							</form>
 							</br>
-						
-					</div>	
+						<a href="">Je n'ai pas reçu le code</a>
+                                                <br/>
+                                                
+                                        </div>	
+                                     
+                                    
 				</div>
 			</div>
 		</div>

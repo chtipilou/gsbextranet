@@ -1,6 +1,5 @@
 ﻿<?php
 
-
 if(!isset($_GET['action'])){
 	$_GET['action'] = 'demandeCreation';
 }
@@ -12,10 +11,12 @@ switch($action){
 		break;
 	}
 	case 'valideCreation':{
-		
            
 		$leLogin = htmlspecialchars($_POST['login']);
-                $lePassword = htmlspecialchars($_POST['mdp']);
+        $lePassword = htmlspecialchars($_POST['mdp']);
+        $leNom = htmlspecialchars($_POST['nom']);
+        $lePrenom = htmlspecialchars($_POST['prénom']);
+        $lePasswordHash = password_hash($lePassword, PASSWORD_BCRYPT);
         
         
         if ($leLogin == $_POST['login'])
@@ -42,7 +43,19 @@ switch($action){
             echo 'Le mot de passe n\'a pas été saisi<br/>';
             $rempli=false; 
         }
-        
+        if (empty($lePrenom)==true){
+            echo 'Le prenom n\'a pas été saisi<br/>';
+            $rempli=false; 
+        }
+        if (empty($leNom)==true){
+            echo 'Le nom n\'a pas été saisi<br/>';
+            $rempli=false; 
+        }
+        if (isset($_POST['politiqcheck'])==false && $dateConsentement = now()) {
+            $rempli=true; 
+            echo 'Veuillez cocher la case';
+        }
+
         
         //si le login et le mdp contiennent quelque chose
         // on continue les vérifications
@@ -50,17 +63,19 @@ switch($action){
             //supprimer les espaces avant/après saisie
             $leLogin = trim($leLogin);
             $lePassword = trim($lePassword);
-
-            
+            $lePrenom = trim($lePrenom);
+            $leNom = trim($lePrenom);
 
             //vérification de la taille du champs
             
-            $nbCarMaxLogin = $pdo->tailleChampsMail();
-            if(strlen($leLogin)>$nbCarMaxLogin){
+            $nbCarMaxLogin = $pdo->tailleChamps(); //mail
+            if(strlen($leLogin)>$nbCarMaxLogin || strlen($lePassword)>$nbCarMaxLogin || strlen($lePrenom)>$nbCarMaxLogin || strlen($leNom)>$nbCarMaxLogin){
                  echo 'Le login ne peut contenir plus de '.$nbCarMaxLogin.'<br/>';
                 $loginOk=false;
                 
             }
+
+
             
             //vérification du format du login
            if (!filter_var($leLogin, FILTER_VALIDATE_EMAIL)) {
@@ -75,14 +90,11 @@ switch($action){
                 . ' une minuscule et un caractère spécial<br/>';
                 $passwordOk=false;
             }
-            
-            
-                 
         }
         }
         if($rempli && $loginOk && $passwordOk){
                 echo 'tout est ok, nous allons pouvoir créer votre compte...<br/>';
-                $executionOK = $pdo->creeMedecin($leLogin,$lePassword);       
+                $executionOK = $pdo->creeMedecin($leLogin,$lePasswordHash, $leNom, $lePrenom , $dateConsentement);       
                
                 if ($executionOK==true){
                     echo "c'est bon, votre compte a bien été créé ;-)";
@@ -91,8 +103,6 @@ switch($action){
                 else
                      echo "ce login existe déjà, veuillez en choisir un autre";
             }
-
-			
         
         break;	
 }

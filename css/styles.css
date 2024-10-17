@@ -16,6 +16,7 @@ body {
 /* Footer */
 
 footer{
+   display:block;
    background-color:#2c3742;
    box-shadow:inset 0px 0px 3px #111;
    color:#fff;
@@ -650,3 +651,6 @@ body {
       border-radius:10px;
    }  
 }
+
+
+ 

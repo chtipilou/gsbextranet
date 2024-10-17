@@ -5,7 +5,7 @@ require_once ("../include/class.pdogsb.inc.php");
 //appel de la fonction qui permet de se connecter à la base de données
 $lePdo = PdoGsb::getPdoGsb();
 
-var_dump($lePdo->tailleChampsMail()); 
-var_dump($lePdo->tailleChamps("medecin","mail")); 
+var_dump($lePdo->donneinfosPortabilite(52)); 
 
 
+echo json_encode($lePdo);

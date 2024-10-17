@@ -9,8 +9,8 @@ $pdo= PdoGsb::getPdoGsb();
 
 
 /***** cas TRUE *******************/
-$mail="y@gmail.com";
-$pwd="YJhd4gR#9UAR2pGA";
+$mail="exemple1@exemple.com";
+$pwd=")J=a3hpaZ9U2-U3";
 
 var_dump($pdo->checkUser($mail,$pwd));
 

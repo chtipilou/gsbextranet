@@ -1,13 +1,11 @@
-﻿
-<?php
+﻿<?php
 require_once("include/fct.inc.php");
 require_once ("include/class.pdogsb.inc.php");
+require_once("vues/v_footer.php");
+
 session_start();
 
-
-
 date_default_timezone_set('Europe/Paris');
-
 
 
 $pdo = PdoGsb::getPdoGsb();
@@ -31,16 +29,5 @@ switch($uc){
 		include("controleurs/c_creation.php");break;
 	}
         
-	
 	}
-	
-
-
 ?>
-
-
-
-
-
-
-

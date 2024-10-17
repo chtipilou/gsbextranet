@@ -17,10 +17,10 @@
  */
 
 class PdoGsb{   		
-      	private static $serveur='mysql:host=localhost:3308';
-      	private static $bdd='dbname=gsbExtranet';   		
-      	private static $user='root' ;    		
-      	private static $mdp='' ;	
+      	private static $serveur='mysql:host=localhost:3306';//8.1 : 3308 erreur
+      	private static $bdd='dbname=gsbextranet';   		
+      	private static $user='gsbextranetAdmin' ;    		
+      	private static $mdp='cesMyspudHZyHyt' ;	
 	private static $monPdo;
 	private static $monPdoGsb=null;
 		
@@ -67,7 +67,7 @@ function checkUser($login,$pwd):bool {
     if ($monObjPdoStatement->execute()) {
         $unUser=$monObjPdoStatement->fetch();
         if (is_array($unUser)){
-           if ($pwd==$unUser['motDePasse'])
+           if (password_verify($pwd,$unUser['motDePasse']))
                 $user=true;
         }
     }
@@ -75,9 +75,6 @@ function checkUser($login,$pwd):bool {
         throw new Exception("erreur dans la requÃªte");
 return $user;   
 }
-
-
-	
 
 function donneLeMedecinByMail($login) {
     
@@ -95,29 +92,45 @@ return $unUser;
 
 
 public function tailleChampsMail(){
-    
-
-    
      $pdoStatement = PdoGsb::$monPdo->prepare("SELECT CHARACTER_MAXIMUM_LENGTH FROM INFORMATION_SCHEMA.COLUMNS
 WHERE table_name = 'medecin' AND COLUMN_NAME = 'mail'");
     $execution = $pdoStatement->execute();
 $leResultat = $pdoStatement->fetch();
       
       return $leResultat[0];
+     
+
+}
+
+public function tailleChamps($nomTable,$nomColonne){
+    $pdoStatement = PdoGsb::$monPdo->prepare("SELECT CHARACTER_MAXIMUM_LENGTH FROM INFORMATION_SCHEMA.COLUMNS
+WHERE table_name = '$nomTable' AND COLUMN_NAME = '$nomColonne'");
+   $execution = $pdoStatement->execute();
+$leResultat = $pdoStatement->fetch();
+     
+     return $leResultat[0];
     
-       
-       
+}
+
+public function tailleChampsNom(){
+    $pdoStatement = PdoGsb::$monPdo->prepare("SELECT CHARACTER_MAXIMUM_LENGTH FROM INFORMATION_SCHEMA.COLUMNS
+WHERE table_name = 'medecin' AND COLUMN_NAME = 'nom'");
+   $execution = $pdoStatement->execute();
+$leResultat = $pdoStatement->fetch();
+     
+     return $leResultat[0];
+    
 }
 
 
-public function creeMedecin($email, $mdp)
+public function creeMedecin($email, $mdp, $dateConsentement)
 {
    
     $pdoStatement = PdoGsb::$monPdo->prepare("INSERT INTO medecin(id,mail, motDePasse,dateCreation,dateConsentement) "
-            . "VALUES (null, :leMail, :leMdp, now(),now())");
+            . "VALUES (null, :leMail, :leMdp, now(),:laDateConsentement)");
     $bv1 = $pdoStatement->bindValue(':leMail', $email);
-   
     $bv2 = $pdoStatement->bindValue(':leMdp', $mdp);
+    $bv2 = $pdoStatement->bindValue(':laDateConsentement', $dateConsentement);
     $execution = $pdoStatement->execute();
     return $execution;
     
@@ -137,9 +150,6 @@ function testMail($email){
     
     return $mailTrouve;
 }
-
-
-
 
 function connexionInitiale($mail){
      $pdo = PdoGsb::$monPdo;
@@ -167,11 +177,89 @@ function donneinfosmedecin($id){
    
     }
     else
-        throw new Exception("erreur");
+        throw new Exception("erreur info medecin");
            
     
 }
 
+function donneinfoPortabilite($id) {
+    $pdo = PdoGsb::$monPdo;
+    $requete = "SELECT nom, prenom, telephone, mail, dateNaissance, dateCreation, rpps, token, dateConsentement FROM medecin WHERE id = :lId";
+    $monObjPdoStatement = $pdo->prepare($requete);
+    $monObjPdoStatement->bindValue(':lId', $id, PDO::PARAM_INT);
+
+    if ($monObjPdoStatement->execute()) {
+        $unUser = $monObjPdoStatement->fetch(PDO::FETCH_ASSOC);
+        return $unUser;
+    } else {
+        throw new Exception("Erreur récupération des informations de portabilité");
+    }
+}
+
+function enregistreConnexion($id) {
+    $pdo = PdoGsb::$monPdo;
+    $requete = "INSERT INTO historiqueconnexion VALUES (:lId, now(), now())";
+    $monObjPdoStatement = $pdo->prepare($requete);
+    $monObjPdoStatement->bindValue(':lId', $id, PDO::PARAM_INT);
+
+    if ($monObjPdoStatement->execute()) {
+        return true;
+    } else {
+        throw new Exception("Erreur historique de connexion");
+    }
+}
+
+
+function enregistrerCodeVerification($idMedecin, $codeVerification) {
+    $pdo = PdoGsb::$monPdo;
+    $requete = "UPDATE medecin SET codeVerification = :codeVerification, dateVerification = NOW() WHERE id = :idMedecin";
+    $monObjPdoStatement = $pdo->prepare($requete);
+    $monObjPdoStatement->bindValue(':codeVerification', $codeVerification);
+    $monObjPdoStatement->bindValue(':idMedecin', $idMedecin);
+    $monObjPdoStatement->execute();
+}
+
+function envoyerCodeVerification($idMedecin) {
+    $codeVerification = genererCodeVerification();
+    $this->enregistrerCodeVerification($idMedecin, $codeVerification);
+    $medecin = $this->donneLeMedecinByMail($idMedecin);
+    if (is_array($medecin)) {
+        $mail = $medecin['mail'];
+        $objet = "Code de vérification pour la connexion";
+        $message = "Votre code de vérification est : $codeVerification";
+        $mail = new PHPMailer();
+        $mail->isSMTP();
+        $mail->Host = 'localhost';
+        $mail->Port = 1025;
+        $mail->setFrom('quentinleroy62123@gmail.com', 'Mail Authentification GSB');
+        $mail->addAddress($mail, $medecin['nom']. $medecin['prenom']);
+        $mail->Subject = $objet;
+        $mail->Body = $message;
+        $mail->send();
+    } else {
+        echo "ERREUR";
+    }
+}
+
+function verifierCodeVerification($idMedecin, $codeVerification) {
+    $pdo = PdoGsb::$monPdo;
+    $requete = "SELECT codeVerification FROM medecin WHERE id = :idMedecin";
+    $monObjPdoStatement = $pdo->prepare($requete);
+    $monObjPdoStatement->bindValue(':idMedecin', $idMedecin);
+    $monObjPdoStatement->execute();
+    $resultat = $monObjPdoStatement->fetch();
+    if ($resultat!== false) {
+        $codeVerificationBdd = $resultat['codeVerification'];
+        if ($codeVerification == $codeVerificationBdd) {
+            return true;
+        } else {
+            return false;
+        }
+    } else {
+        return false;
+    }
+}
 
 }
+
 ?>

@@ -89,7 +89,7 @@ function input_data($data){
 
 
     
-    function generateCode(){
+function generateCode(){
           // Generate a 6 digits hexadecimal number
 	  $numbytes = 3; // Because 6 digits hexadecimal = 3 bytes
 	  $bytes = openssl_random_pseudo_bytes($numbytes); 
@@ -97,7 +97,20 @@ function input_data($data){
 	  return $hex;
         
     }
-    
-    
+
+function portabilite($id) {
+	$info = PdoGsb::getPdoGsb()->donneInfoPortabilite($id);
+	$fichier = "../portabilite/".$id.".json";
+	file_put_contents($fichier, json_encode($info));
+}
+
+function genererCodeVerification() {
+    return rand(100000, 999999);
+}
+
+function ajouterConnexion($id) {
+	PdoGsb::getPdoGsb()->enregistreConnexion($id);
+}
+
     
 ?>

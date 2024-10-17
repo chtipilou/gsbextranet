@@ -45,6 +45,8 @@ else {
       <ul class="nav navbar-nav">
         
         <li class="active"><a href="index.php?uc=etatFrais&action=selectionnerMois">M'inscrire à une visio</a></li> 
+        <li class="active"><a href="vues/v_portabilite.php">Telecharger mes données</a></li> 
+        <li class="active"><a href="vues/c_deconnexion.php">Se Déconnecter</a></li> 
        
          
       </ul>
