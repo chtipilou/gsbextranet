@@ -9,7 +9,7 @@ $pdo= PdoGsb::getPdoGsb();
 
 
 /***** cas TRUE *******************/
-$mail="y@gmail.com";
+$mail="exemple1@exemple.com";
 
 
 var_dump($pdo->donneLeMedecinByMail($mail));

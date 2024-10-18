@@ -1,36 +1,29 @@
 <?php
+session_start();
+require_once "../include/class.pdogsb.inc.php";
+require_once "../include/fct.inc.php";
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+if (!estConnecte()) {
+    die("Vous devez être connecté pour accéder à cette fonctionnalité.");
+}
 
-require_once("../include/fct.inc.php");
+$idMedecin = $_SESSION['id'];
 
-$action = $_GET['action'];
-    switch($action){
-        case 'portabilite':{
-            $lePdo = PdoGsb::getPdoGsb();
+$pdo = PdoGsb::getPdoGsb();
+try {
+    $infoMedecin = $pdo->donneinfoPortabilite($idMedecin);
+} catch (Exception $e) {
+    die("Erreur lors de la récupération des données : " . $e->getMessage());
+}
 
-            // Récupère l'ID du médecin connecté
-            $idMedecin = $_GET['id'];
+$nomFichier = "GSbExtranet_" . $idMedecin . ".json";
 
-            // Appelle la méthode donneinfosPortabilite avec l'ID du médecin
-            $userData = $lePdo->donneinfosPortabilite($idMedecin);
+header('Content-Type: application/json');
+header('Content-Disposition: attachment; filename="' . $nomFichier . '"');
+header('Pragma: no-cache');
+header('Expires: 0');
 
-            $generate_json = json_encode($userData, JSON_PRETTY_PRINT);
-            
-            // Préparation de l'en-tête pour le téléchargement
-            header('Content-Type: application/json; charset=utf-8');
-            header('Content-Disposition: attachment; filename="user_data_'. $generate_json. '.json"');
-            header('Pragma: no-cache');
+echo json_encode($infoMedecin);
 
-            echo ($generate_json);
-
-            include("../vues/v_portabilite.php");
-            break;
-        }
-        default :{
-            include("../vues/v_connexion.php");
-            break;
-        }
-    }
+exit;
+?>

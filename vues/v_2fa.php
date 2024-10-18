@@ -1,57 +1,56 @@
-﻿<!DOCTYPE html>
+﻿<?php
+session_start();
+
+require_once '../include/class.pdogsb.inc.php';
+
+// Récupération du code 2FA depuis la base de données
+if (isset($_SESSION['id'])) {
+    $medecin = PdoGsb::getPdoGsb()->donneinfosmedecin($_SESSION['id']);
+    if ($medecin) {
+        $_SESSION['2fa'] = $medecin['codeVerification']; 
+    }
+}
+?>
+
+<!DOCTYPE html>
 <html lang="fr">
 <head>
-    <title>GSB - extranet</title>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Bootstrap -->
+    <title>GSB - Authentification 2FA</title>
     <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <!-- styles -->
-    <link href="../css/styles.css" rel="stylesheet">
+    <link href="../css/a2f.css" rel="stylesheet">
+</head>
 
-    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
-    <![endif]-->
-  </head>
+<body>
+    <div class="page-content">
+        <div class="login-wrapper">
+            <div class="box">
+                <div class="content-wrap">
+                    <legend>Authentification à 2 facteurs</legend>
+                    <form method="post" action="../index.php?uc=connexion&action=valideCode">
+                        <?php if (isset($_SESSION['2fa'])): ?>
+                            <div class="alert alert-info text-center">
+                                Votre code 2FA est : <?php echo htmlspecialchars($_SESSION['2fa']); ?>
+                            </div>
+                        <?php else: ?>
+                            <div class="alert alert-warning text-center">
+                                Aucun code 2FA disponible.
+                            </div>
+                        <?php endif; ?>
+                        
+                        <input name="2fa" class="form-control" type="text" placeholder="Entrez votre code 2FA" required>
+                        <br>
+                        <button type="submit" class="btn btn-primary btn-block">Valider</button>
+                    </form>
+                    <br>
+                    <a href="#">Je n'ai pas reçu le code</a>
+                </div>
+            </div>
+        </div>
+    </div>
 
-  <body background="assets/img/laboratoire.jpg">
-
-      <!-- **********************************************************************************************************************************************************
-      MAIN CONTENT
-      *********************************************************************************************************************************************************** -->
-
-<div class="page-content container">
-	<div class="row">
-		<div class="col-md-4 col-md-offset-4">
-			<div class="login-wrapper">
-				<div class="box">
-					<div class="content-wrap">
-						<legend>Authentification a 2 facteur</legend>
-							<form method="post" action="../controleurs/c_2fa.php">
-								<input name="2fa" class="form-control" type="text" placeholder="Code A2F (6 Chiffres)">
-                <br><p>Vous avez reçu par mail un code d'authentification a 2 facteur.</p>
-								</br>
-								<input type="submit" class="btn btn-primary signup" value="Valider">
-							</form>
-							</br>
-						<a href="">Je n'ai pas reçu le code</a>
-                                                <br/>
-                                                
-                                        </div>	
-                                     
-                                    
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
-
-  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://code.jquery.com/jquery.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="bootstrap/js/bootstrap.min.js"></script>
-    <script src="js/custom.js"></script>
-  </body>
+</body>
 </html>
