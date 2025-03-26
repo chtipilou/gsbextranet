@@ -1,9 +1,10 @@
-<?php
-
-echo "<div class='navbar-fixed-bottom text-center'>";
-echo "<footer>";
-echo "<small>";
-echo '<a href="vues/v_politiqueprotectiondonnees.html">Politique de protection des données.</a>';
-echo "</small>";
-echo "</footer>";
-echo "</div>";
+<footer>
+    <div class="container1">
+        <div class="row">
+            <div class="col-md-12">
+                <p>&copy; <?php echo date('Y'); ?> GSB Extranet - Tous droits réservés</p>
+                <a href="vues/v_politiqueprotectiondonnees.html">Politique de protection des données</a>
+            </div>
+        </div>
+    </div>
+</footer>

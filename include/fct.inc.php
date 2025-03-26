@@ -16,10 +16,10 @@ function estConnecte(){
  * @param $nom
  * @param $prenom
  */
-function connecter($id,$nom,$prenom){
-	$_SESSION['id']= $id; 
-	$_SESSION['nom']= $nom;
-	$_SESSION['prenom']= $prenom;
+function connecter($id, $nom, $prenom) {
+    $_SESSION['id'] = $id;
+    $_SESSION['nom'] = $nom;
+    $_SESSION['prenom'] = $prenom;
 }
 
 
@@ -114,3 +114,4 @@ function ajouterConnexion($id) {
 
     
 ?>
+
